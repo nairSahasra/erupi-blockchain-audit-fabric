@@ -1,0 +1,37 @@
+{
+  "name": "erupi-network-org2",
+  "version": "1.0.0",
+  "client": {
+    "organization": "Org2MSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        }
+      }
+    }
+  },
+  "organizations": {
+    "Org2MSP": {
+      "mspid": "Org2MSP",
+      "peers": [
+        "peer0.org2.erupi.com"
+      ],
+      "certificateAuthorities": [
+        "ca.org2.erupi.com"
+      ]
+    }
+  },
+  "peers": {
+    "peer0.org2.erupi.com": {
+      "url": "grpcs://localhost:9051",
+      "tlsCACerts": {
+        "path": "fabric-network/organizations/peerOrganizations/org2.erupi.com/peers/peer0.org2.erupi.com/tls/ca.crt"
+      },
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.org2.erupi.com",
+        "hostnameOverride": "peer0.org2.erupi.com"
+      }
+    }
+  }
+}

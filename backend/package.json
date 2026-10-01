@@ -1,0 +1,25 @@
+{
+  "name": "erupi-backend-api",
+  "version": "1.0.0",
+  "description": "Express REST API and Fabric Gateway client for e-RUPI Blockchain Audit Layer",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "mocha test/api.test.js --reporter spec --timeout 10000 --exit"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.8",
+    "@hyperledger/fabric-gateway": "^1.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.4.0",
+    "sinon": "^17.0.1",
+    "supertest": "^7.0.0"
+  },
+  "author": "e-RUPI Blockchain Audit Project",
+  "license": "Apache-2.0"
+}

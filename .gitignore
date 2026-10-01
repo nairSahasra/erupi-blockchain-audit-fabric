@@ -1,0 +1,30 @@
+# Node & NPM
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment & credentials
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+*.tar.gz
+*.block
+*.tx
+
+# Fabric generated crypto & channel artifacts (can be regenerated with scripts)
+fabric-network/organizations/peerOrganizations/
+fabric-network/organizations/ordererOrganizations/
+fabric-network/channel-artifacts/
+fabric-network/wallet/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

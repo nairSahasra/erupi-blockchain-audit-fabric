@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-RUPI Audit Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>e-RUPI Audit Dashboard</h1>
+            <p>Permissioned Blockchain Audit & Verification Layer</p>
+        </div>
+
+        <div class="role-box">
+            <label for="role">Role</label>
+            <select id="role">
+                <option value="government">Government</option>
+                <option value="bank">Bank</option>
+                <option value="merchant">Merchant</option>
+                <option value="auditor">Auditor</option>
+            </select>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="cards">
+            <div class="card">
+                <span>Network</span>
+                <strong id="networkStatus">Checking...</strong>
+            </div>
+
+            <div class="card">
+                <span>Channel</span>
+                <strong>erupi-channel</strong>
+            </div>
+
+            <div class="card">
+                <span>Chaincode</span>
+                <strong>erupi-contract</strong>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Payment Operations</h2>
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Payment ID</label>
+                    <input id="paymentId" placeholder="ERUPI-API-TEST-001">
+                </div>
+
+                <div>
+                    <label>Purpose</label>
+                    <input id="purpose" placeholder="Education">
+                </div>
+
+                <div>
+                    <label>Amount</label>
+                    <input id="amount" type="number" placeholder="1500">
+                </div>
+
+                <div>
+                    <label>Issuer</label>
+                    <input id="issuer" placeholder="Government of India">
+                </div>
+
+                <div>
+                    <label>Beneficiary Reference</label>
+                    <input id="beneficiaryRef" placeholder="BEN-001">
+                </div>
+
+                <div>
+                    <label>Merchant ID</label>
+                    <input id="merchantId" placeholder="MERCHANT-001">
+                </div>
+
+                <div>
+                    <label>Merchant Name</label>
+                    <input id="merchantName" placeholder="Test Merchant">
+                </div>
+
+                <div>
+                    <label>Expiry Date</label>
+                    <input id="expiryDate" type="date">
+                </div>
+
+            </div>
+
+            <div class="actions">
+
+                <button id="createBtn" onclick="createPayment()">
+                    Issue Payment
+                </button>
+
+                <button id="verifyBtn" onclick="verifyPayment()">
+                    Verify Payment
+                </button>
+
+                <button id="redeemBtn" onclick="redeemPayment()">
+                    Redeem Payment
+                </button>
+
+                <button id="settleBtn" onclick="settlePayment()">
+                    Settle Payment
+                </button>
+
+                <button onclick="getPayment()">
+                    View Payment
+                </button>
+
+                <button onclick="getHistory()">
+                    View History
+                </button>
+
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Payment Status</h2>
+
+            <div class="status-flow">
+                <div id="statusIssued" class="status">ISSUED</div>
+                <span>→</span>
+                <div id="statusVerified" class="status">VERIFIED</div>
+                <span>→</span>
+                <div id="statusRedeemed" class="status">REDEEMED</div>
+                <span>→</span>
+                <div id="statusSettled" class="status">SETTLED</div>
+            </div>
+
+            <pre id="result">API responses will appear here...</pre>
+        </section>
+
+    </main>
+
+    <div id="message"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
