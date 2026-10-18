@@ -109,11 +109,15 @@ async function createPayment() {
         notes: "Created through e-RUPI Audit Dashboard"
     };
 
-    await apiRequest(`${API_BASE}/payments`, {
+    const resultData = await apiRequest(`${API_BASE}/payments`, {
         method: "POST",
         headers: headers(),
         body: JSON.stringify(data)
     });
+
+    if (resultData && resultData.success) {
+        updateStatus("ISSUED");
+    }
 }
 
 async function verifyPayment() {
@@ -131,14 +135,21 @@ async function verifyPayment() {
 
     if (!bankRef) return;
 
-    await apiRequest(`${API_BASE}/payments/${encodeURIComponent(paymentId)}/verify`, {
-        method: "PUT",
-        headers: headers(),
-        body: JSON.stringify({
-            bankRef: bankRef,
-            remarks: "Verified through audit dashboard"
-        })
-    });
+    const resultData = await apiRequest(
+        `${API_BASE}/payments/${encodeURIComponent(paymentId)}/verify`,
+        {
+            method: "PUT",
+            headers: headers(),
+            body: JSON.stringify({
+                bankRef: bankRef,
+                remarks: "Verified through audit dashboard"
+            })
+        }
+    );
+
+    if (resultData && resultData.success) {
+        updateStatus("VERIFIED");
+    }
 }
 
 async function redeemPayment() {
@@ -164,14 +175,21 @@ async function redeemPayment() {
 
     if (!locationRef) return;
 
-    await apiRequest(`${API_BASE}/payments/${encodeURIComponent(paymentId)}/redeem`, {
-        method: "PUT",
-        headers: headers(),
-        body: JSON.stringify({
-            merchantId: merchantId,
-            locationRef: locationRef
-        })
-    });
+    const resultData = await apiRequest(
+        `${API_BASE}/payments/${encodeURIComponent(paymentId)}/redeem`,
+        {
+            method: "PUT",
+            headers: headers(),
+            body: JSON.stringify({
+                merchantId: merchantId,
+                locationRef: locationRef
+            })
+        }
+    );
+
+    if (resultData && resultData.success) {
+        updateStatus("REDEEMED");
+    }
 }
 
 async function settlePayment() {
@@ -189,13 +207,20 @@ async function settlePayment() {
 
     if (!settlementRef) return;
 
-    await apiRequest(`${API_BASE}/payments/${encodeURIComponent(paymentId)}/settle`, {
-        method: "PUT",
-        headers: headers(),
-        body: JSON.stringify({
-            bankSettlementRef: settlementRef
-        })
-    });
+    const resultData = await apiRequest(
+        `${API_BASE}/payments/${encodeURIComponent(paymentId)}/settle`,
+        {
+            method: "PUT",
+            headers: headers(),
+            body: JSON.stringify({
+                bankSettlementRef: settlementRef
+            })
+        }
+    );
+
+    if (resultData && resultData.success) {
+        updateStatus("SETTLED");
+    }
 }
 
 async function getPayment() {
@@ -212,8 +237,12 @@ async function getPayment() {
         }
     );
 
-    if (data && data.success && data.payment) {
-        updateStatus(data.payment.status);
+    if (data && data.success && data.data) {
+        const status = String(data.data.status).trim().toUpperCase();
+
+        console.log("Payment status:", status);
+
+        updateStatus(status);
     }
 }
 
@@ -241,13 +270,6 @@ function updateStatus(status) {
         "statusSettled"
     ];
 
-    statuses.forEach(id => {
-        document.getElementById(id).classList.remove(
-            "active",
-            "current"
-        );
-    });
-
     const order = [
         "ISSUED",
         "VERIFIED",
@@ -255,19 +277,31 @@ function updateStatus(status) {
         "SETTLED"
     ];
 
+    statuses.forEach(id => {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.classList.remove("active", "current");
+        }
+    });
+
     const index = order.indexOf(status);
 
     if (index === -1) return;
 
     for (let i = 0; i <= index; i++) {
-        document
-            .getElementById(statuses[i])
-            .classList.add("active");
+        const element = document.getElementById(statuses[i]);
+
+        if (element) {
+            element.classList.add("active");
+        }
     }
 
-    document
-        .getElementById(statuses[index])
-        .classList.add("current");
+    const currentElement = document.getElementById(statuses[index]);
+
+    if (currentElement) {
+        currentElement.classList.add("current");
+    }
 }
 
 roleSelect.addEventListener("change", () => {

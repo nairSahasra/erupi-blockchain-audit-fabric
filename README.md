@@ -1,352 +1,332 @@
-\# e-RUPI Blockchain Audit \& Verification Layer
+# e-RUPI Blockchain Audit & Verification Layer
 
+A permissioned blockchain-based audit and verification framework for tracking the e-RUPI payment lifecycle using Hyperledger Fabric.
 
+## 1. Project Overview
 
-A permissioned blockchain-based audit and verification framework for e-RUPI payment lifecycle tracking using Hyperledger Fabric.
+This project implements a permissioned blockchain-based audit layer for e-RUPI transactions.
 
+The system does **not replace the existing e-RUPI payment infrastructure**. Instead, it provides an additional audit and verification layer for recording important payment lifecycle events on a tamper-evident distributed ledger.
 
+The system tracks:
 
-\## 1. Project Overview
+- Payment issuance
+- Payment verification
+- Payment redemption
+- Payment settlement
+- Complete transaction history
 
+The objective is to provide authorized stakeholders with a traceable, auditable, and tamper-evident record of payment lifecycle events.
 
-
-This project implements a blockchain-based audit layer for e-RUPI transactions.
-
-
-
-The system does not replace the existing e-RUPI payment infrastructure. Instead, it provides a permissioned ledger for recording and verifying important lifecycle events:
-
-
-
-\- Payment issuance
-
-\- Payment verification
-
-\- Payment redemption
-
-\- Payment settlement
-
-\- Complete transaction history
-
-
-
-The objective is to provide a tamper-evident and auditable record of payment lifecycle events across authorized stakeholders.
-
-
-
-\## 2. Architecture
-
-
+## 2. Architecture
 
 The system consists of four main stakeholder roles:
 
+- Government / Sponsor
+- Bank
+- Merchant
+- Auditor
 
-
-\- Government / Sponsor
-
-\- Bank
-
-\- Merchant
-
-\- Auditor
-
-
-
-Application flow:
-
+### Application Flow
 
 
 Frontend
-
-↓
-
+   ↓
 Express REST API
-
-↓
-
+   ↓
 Hyperledger Fabric Gateway
-
-↓
-
+   ↓
 Fabric Network
-
-↓
-
+   ↓
 Smart Contract / Chaincode
-
-↓
-
+   ↓
 Distributed Ledger
 
 
+### Stakeholder Organization Mapping
 
-The Fabric network contains:
+The Fabric network uses two organizations:
 
+Org1
+├── Government / Sponsor
+└── Bank
 
+Org2
+├── Merchant
+└── Auditor
 
-\- Org1
+Government and Bank are represented as application roles within Org1, while Merchant and Auditor are represented as application roles within Org2.
 
-&#x20; - Government
+### Fabric Configuration
 
-&#x20; - Bank
-
-\- Org2
-
-&#x20; - Merchant
-
-&#x20; - Auditor
-
-
-
-The blockchain channel is:
+**Channel:**
 
 
-
-`erupi-channel`
-
+erupi-channel
 
 
-The deployed chaincode is:
+**Chaincode:**
 
 
-
-`erupi-contract`
-
+erupi-contract
 
 
-\## 3. Technology Stack
+## 3. Technology Stack
 
+### Frontend
 
+- HTML
+- CSS
+- JavaScript
 
-\### Frontend
+### Backend
 
+- Node.js
+- Express.js
+- REST API
+- Hyperledger Fabric Gateway
+- Mocha
+- Chai
+- Supertest
 
+### Blockchain
 
-\- HTML
+- Hyperledger Fabric 2.5
+- Fabric Gateway
+- Fabric Chaincode
+- CouchDB
+- Docker
 
-\- CSS
+## 4. Payment Lifecycle
 
-\- JavaScript
-
-
-
-\### Backend
-
-
-
-\- Node.js
-
-\- Express.js
-
-\- REST API
-
-\- Supertest
-
-\- Mocha
-
-\- Chai
-
-
-
-\### Blockchain
-
-
-
-\- Hyperledger Fabric 2.5
-
-\- Fabric Gateway
-
-\- Fabric Chaincode
-
-\- CouchDB
-
-\- Docker
-
-
-
-\## 4. Payment Lifecycle
-
-
-
-The payment follows the lifecycle:
-
+Each payment follows the controlled lifecycle:
 
 
 ISSUED
-
-↓
-
+   ↓
 VERIFIED
-
-↓
-
+   ↓
 REDEEMED
-
-↓
-
+   ↓
 SETTLED
 
 
+The smart contract enforces valid state transitions.
 
-Each state transition creates a blockchain transaction.
-
-
+Each major lifecycle operation creates a corresponding blockchain transaction.
 
 The payment record maintains transaction references for:
 
+- Issue transaction
+- Verification transaction
+- Redemption transaction
+- Settlement transaction
 
+This allows authorized users, particularly auditors, to retrieve the historical state of a payment and its associated transaction IDs.
 
-\- Issue transaction
-
-\- Verification transaction
-
-\- Redemption transaction
-
-\- Settlement transaction
-
-
-
-This allows auditors to retrieve the historical state of a payment and its associated transaction IDs.
-
-
-
-\## 5. Role-Based Authorization
-
-
+## 5. Role-Based Authorization
 
 The backend uses the `X-Role` HTTP header to identify the application role.
 
-
-
 Supported roles:
 
-
-
 | Role | Organization | Main Operations |
-
 |------|--------------|-----------------|
-
 | Government | Org1MSP | Create payments |
-
 | Bank | Org1MSP | Verify and settle payments |
-
 | Merchant | Org2MSP | Redeem payments |
-
 | Auditor | Org2MSP | Read payments and audit history |
-
-
 
 Unauthorized operations are rejected by the backend.
 
-
-
-
 Examples:
 
+- Merchant cannot verify a payment.
+- Auditor cannot create a payment.
+- Invalid roles are rejected.
+- Requests without the `X-Role` header are rejected.
 
+## 6. REST API
 
-\- Merchant cannot verify a payment.
-
-\- Auditor cannot create a payment.
-
-\- Invalid roles are rejected.
-
-\- Requests without `X-Role` are rejected.
-
-
-
-\## 6. REST API
-
-
-
-\### Health Check
-
-
-
+### Health Check
 
 
 GET /api/health
 
+
 Checks the connectivity between the backend and Hyperledger Fabric.
 
-### Main Endpoints
+### Payment Endpoints
 
-| Method | Endpoint                         | Role                        |
-| ------ | -------------------------------- | --------------------------- |
-| POST   | `/api/payments`                  | Government                  |
-| GET    | `/api/payments/:id`              | All roles                   |
-| PUT    | `/api/payments/:id/verify`       | Bank                        |
-| PUT    | `/api/payments/:id/redeem`       | Merchant                    |
-| PUT    | `/api/payments/:id/settle`       | Bank                        |
-| GET    | `/api/payments/:id/history`      | All roles                   |
-| GET    | `/api/audit/payments?status=...` | Government / Bank / Auditor |
+| Method | Endpoint | Authorized Role |
+|--------|----------|-----------------|
+| POST | `/api/payments` | Government |
+| GET | `/api/payments/:id` | All roles |
+| PUT | `/api/payments/:id/verify` | Bank |
+| PUT | `/api/payments/:id/redeem` | Merchant |
+| PUT | `/api/payments/:id/settle` | Bank |
+| GET | `/api/payments/:id/history` | All roles |
+| GET | `/api/audit/payments?status=...` | Government / Bank / Auditor |
 
-## 7. Testing
+## 7. Data Input
 
-The backend API was tested using Mocha, Chai and Supertest.
+The system supports dynamic payment data entry through the frontend dashboard.
+
+When the Government role issues a payment, the user can enter:
+
+- Payment ID
+- Purpose
+- Amount
+- Issuer
+- Beneficiary Reference
+- Merchant ID
+- Merchant Name
+- Expiry Date
+- Notes
+
+The frontend sends the entered information to the backend through:
+
+
+POST /api/payments
+
+
+The backend then submits the payment information to the Hyperledger Fabric smart contract.
+
+Therefore, payment records do not have to be hardcoded.
+
+### Demo Data
+
+The chaincode also contains predefined demo records through the `InitLedger` function.
+
+These records are used for:
+
+- Testing
+- Demonstration
+- Initial ledger verification
+
+For example:
+
+
+ERUPI-2026-0001
+
+
+is a predefined demonstration payment.
+
+## 8. Testing
+
+### Backend API Testing
+
+The backend API was tested using:
+
+- Mocha
+- Chai
+- Supertest
 
 Tested scenarios include:
 
-* Health endpoint
-* Missing role rejection
-* Invalid role rejection
-* Unauthorized operations
-* Payment retrieval
-* Payment history
-* Status-based queries
+- Health endpoint
+- Missing role rejection
+- Invalid role rejection
+- Unauthorized operations
+- Payment retrieval
+- Payment history
+- Status-based queries
 
-Current API test result:
+**Backend test result:**
 
 
 7 passing
 
 
-The complete payment lifecycle was also tested:
+### Chaincode Unit Testing
+
+The Hyperledger Fabric chaincode was tested using Mocha and Chai.
+
+Tested scenarios include:
+
+- Ledger initialization
+- Payment creation
+- Duplicate payment rejection
+- Complete payment lifecycle
+- Invalid lifecycle transitions
+- Unauthorized merchant redemption
+- Payment history retrieval
+
+**Chaincode test result:**
+
+
+8 passing
+
+
+### Complete Lifecycle Test
+
+The complete payment lifecycle was successfully tested:
 
 
 ISSUED → VERIFIED → REDEEMED → SETTLED
 
-
-## 8. Frontend Dashboard
+## 9. Frontend Dashboard
 
 The project includes a web-based dashboard for interacting with the REST API.
 
-It supports:
+The dashboard supports:
 
-* Role selection
-* Payment issuance
-* Payment verification
-* Payment redemption
-* Payment settlement
-* Payment lookup
-* Payment history
-* Lifecycle status tracking
+- Role selection
+- Payment data entry
+- Payment issuance
+- Payment verification
+- Payment redemption
+- Payment settlement
+- Payment lookup
+- Payment history
+- Lifecycle status tracking
 
-Frontend:
+### Local Frontend
 
 
 http://localhost:5500
 
 
-Backend:
+### Local Backend
 
 
 http://localhost:3001
 
 
-## 9. Running the Project
+The frontend communicates with the backend through the REST API.
 
-Start the Fabric network and ensure Docker Desktop is running.
+## 10. Running the Project
 
-### Backend
+### Prerequisites
 
+Ensure the following are available:
+
+- Node.js
+- npm
+- Docker Desktop
+- Hyperledger Fabric binaries and images
+- Python (for the local frontend server)
+
+### Start Fabric Network
+
+Start the Fabric network using the project's Fabric network configuration and ensure Docker Desktop is running.
+
+### Start Backend
+
+From the project root:
 
 cd backend
 npm install
 npm start
 
 
-### Frontend
+The backend runs on:
+
+
+http://localhost:3001
+
+
+### Start Frontend
 
 From the project root:
 
@@ -360,32 +340,67 @@ Then open:
 http://localhost:5500
 
 
-## 10. Project Structure
+## 11. Project Structure
 
 
 erupi-blockchain-audit-fabric/
 │
 ├── backend/
+│   ├── src/
+│   └── test/
+│
 ├── chaincode/
+│   └── erupi-contract/
+│       ├── lib/
+│       └── test/
+│
 ├── fabric-network/
+│   ├── organizations/
+│   ├── config/
+│   └── ...
+│
 ├── frontend/
 │   ├── index.html
 │   ├── style.css
 │   └── app.js
+│
+├── .gitattributes
 ├── .gitignore
 └── README.md
 
 
-## 11. Project Objective
+## 12. Project Objective
 
-The project provides a permissioned blockchain audit layer for tracking e-RUPI payment lifecycle events.
+The project provides a permissioned blockchain audit and verification layer for tracking e-RUPI payment lifecycle events.
 
-The main goals are:
+The main objectives are:
 
-* Traceability
-* Auditability
-* Role-based access
-* Lifecycle verification
-* Tamper-evident records
-* Transaction-level history
+- Traceability
+- Auditability
+- Role-based access control
+- Lifecycle verification
+- Tamper-evident records
+- Transaction-level history
+- Multi-stakeholder auditability
 
+## 13. Current Implementation Status
+
+The core implementation has been tested successfully.
+
+| Component | Status |
+|-----------|--------|
+| Hyperledger Fabric Network | Complete |
+| Fabric Channel | Complete |
+| Chaincode | Complete |
+| CouchDB | Complete |
+| Backend REST API | Complete |
+| Role-Based Authorization | Complete |
+| Frontend Dashboard | Complete |
+| Payment Lifecycle | Complete |
+| Payment History | Complete |
+| Backend API Tests | 7 passing |
+| Chaincode Unit Tests | 8 passing |
+
+The project currently operates as a local demonstration and development environment.
+
+A future deployment can expose the frontend and backend through public URLs and host the Fabric network on a cloud environment.
